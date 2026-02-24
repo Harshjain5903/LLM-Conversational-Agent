@@ -307,25 +307,36 @@ sbt testOnly com.hardas.agent.ConversationAgentTest
 
 ## Deployment
 
-### AWS EC2
+### AWS Production Deployment
+
+For production deployment on AWS with EC2, API Gateway, Lambda, and monitoring:
+
+**Quick Deploy:**
 ```bash
-# SSH to instance
-ssh -i key.pem ec2-user@instance-ip
+# 1. Create EC2 instance (AWS console)
+# 2. Run deployment script
+./deployment/aws-ec2-deploy.sh i-xxxxx /path/to/key.pem us-east-1
 
-# Clone and run
-git clone https://github.com/Harshjain5903/LLM-Conversational-Agent.git
-cd LLM-Conversational-Agent
-docker-compose up -d
-
-# Access via http://instance-ip:8080
+# 3. Set up API Gateway & Lambda (Terraform)
+cd deployment
+terraform init && terraform apply
 ```
 
-See [deployment/aws-setup.md](deployment/aws-setup.md) for full guide.
+**Includes:**
+- EC2 auto-provisioning with Docker
+- API Gateway for request routing
+- Lambda for serverless execution
+- Prometheus + Grafana for monitoring
+- CloudWatch integration
+- Auto-scaling ready
+
+See [deployment/AWS_DEPLOYMENT.md](deployment/AWS_DEPLOYMENT.md) for comprehensive guide.
 
 ### Kubernetes
 Deploy using Docker image:
 ```bash
 docker build -t llm-agent:1.0.0 .
+kubectl apply -f k8s/deployment.yaml
 ```
 
 ---
