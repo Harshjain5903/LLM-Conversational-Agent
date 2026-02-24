@@ -27,8 +27,6 @@ lazy val root = (project in file("."))
 // Scala and JVM Versions
 val akkaVersion = "2.9.3"
 val akkaHttpVersion = "10.6.3"
-val grpcVersion = "1.63.0"
-val scalapbVersion = "0.11.15"
 val sprayVersion = "1.3.6"
 
 // Core Dependencies
@@ -41,13 +39,6 @@ libraryDependencies ++= Seq(
   
   // Spray JSON
   "io.spray" %% "spray-json" % sprayVersion,
-  
-  // gRPC
-  "io.grpc" % "grpc-netty-shaded" % grpcVersion,
-  "io.grpc" % "grpc-protobuf" % grpcVersion,
-  "io.grpc" % "grpc-stub" % grpcVersion,
-  "com.thesamet.scalapb" %% "scalapb-runtime" % scalapbVersion % "protobuf",
-  "com.thesamet.scalapb" %% "scalapb-runtime-grpc" % scalapbVersion,
   
   // Configuration Management
   "com.typesafe" % "config" % "1.4.3",
@@ -84,10 +75,6 @@ libraryDependencies ++= Seq(
   "org.mockito" % "mockito-core" % "5.7.1" % Test
 )
 
-// Protobuf Compile Settings
-Compile / PB.targets := Seq(
-  scalapb.gen() -> (Compile / sourceManaged).value / "scalapb"
-)
 
 // Assembly Plugin for creating fat JAR
 addSbtPlugin("com.eed3si9n" % "sbt-assembly" % "2.1.5")
