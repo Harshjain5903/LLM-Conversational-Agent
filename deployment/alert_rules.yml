@@ -1,0 +1,92 @@
+groups:
+  - name: llm_agent_alerts
+    interval: 10s
+    rules:
+      # Service availability alert
+      - alert: LLMAgentDown
+        expr: up{job="llm-agent"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: llm-agent
+        annotations:
+          summary: "LLM Agent is down"
+          description: "LLM Agent instance {{ $labels.instance }} is down"
+
+      # High error rate
+      - alert: HighErrorRate
+        expr: rate(llm_agent_errors_total[5m]) > 0.05
+        for: 5m
+        labels:
+          severity: warning
+          service: llm-agent
+        annotations:
+          summary: "High error rate detected"
+          description: "Error rate is {{ $value | humanizePercentage }} on {{ $labels.instance }}"
+
+      # High latency
+      - alert: HighLatency
+        expr: histogram_quantile(0.95, rate(llm_agent_request_duration_seconds_bucket[5m])) > 1
+        for: 5m
+        labels:
+          severity: warning
+          service: llm-agent
+        annotations:
+          summary: "High request latency detected"
+          description: "P95 latency is {{ $value }}s on {{ $labels.instance }}"
+
+      # Memory usage high
+      - alert: HighMemoryUsage
+        expr: container_memory_usage_bytes{name="llm-agent"} / 1073741824 > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: llm-agent
+        annotations:
+          summary: "High memory usage"
+          description: "Memory usage is {{ $value | humanize }}GB"
+
+      # CPU usage high
+      - alert: HighCPUUsage
+        expr: rate(container_cpu_usage_seconds_total{name="llm-agent"}[5m]) > 0.8
+        for: 5m
+        labels:
+          severity: warning
+          service: llm-agent
+        annotations:
+          summary: "High CPU usage"
+          description: "CPU usage is {{ $value | humanizePercentage }}"
+
+      # Disk space low
+      - alert: DiskSpaceLow
+        expr: node_filesystem_avail_bytes{mountpoint="/"} / node_filesystem_size_bytes{mountpoint="/"} < 0.1
+        for: 5m
+        labels:
+          severity: warning
+          service: system
+        annotations:
+          summary: "Low disk space"
+          description: "Only {{ $value | humanizePercentage }} of disk space available"
+
+  - name: conversation_metrics
+    interval: 30s
+    rules:
+      # Conversation timeout alert
+      - alert: InactiveConversations
+        expr: llm_agent_active_conversations < 1
+        for: 10m
+        labels:
+          severity: info
+        annotations:
+          summary: "No active conversations"
+          description: "No active conversations detected for 10 minutes"
+
+      # High message backlog
+      - alert: HighMessageBacklog
+        expr: llm_agent_message_queue_length > 1000
+        for: 5m
+        labels:
+          severity: warning
+        annotations:
+          summary: "High message backlog"
+          description: "Message queue length: {{ $value }}"

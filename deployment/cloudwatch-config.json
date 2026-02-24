@@ -1,0 +1,107 @@
+{
+  "agent": [
+    {
+      "metrics_collection_interval": 60,
+      "run_as_user": "_cwagent",
+      "region": "us-east-1"
+    }
+  ],
+  "logs": {
+    "logs_collected": {
+      "files": {
+        "collect_list": [
+          {
+            "file_path": "/var/log/docker.log",
+            "log_group_name": "/aws/llm-agent/docker",
+            "log_stream_name": "{instance_id}"
+          },
+          {
+            "file_path": "/var/lib/docker/containers/*/*.log",
+            "log_group_name": "/aws/llm-agent/containers",
+            "log_stream_name": "{instance_id}"
+          }
+        ]
+      }
+    }
+  },
+  "metrics": {
+    "namespace": "LLMAgent",
+    "metrics_collected": {
+      "cpu": {
+        "measurement": [
+          {
+            "name": "cpu_usage_idle",
+            "rename": "CPU_IDLE",
+            "unit": "Percent"
+          },
+          {
+            "name": "cpu_usage_iowait",
+            "rename": "CPU_IOWAIT",
+            "unit": "Percent"
+          },
+          "cpu_time_guest"
+        ],
+        "metrics_collection_interval": 60,
+        "aggregation_dimensions": [
+          ["InstanceId"],
+          ["InstanceId", "cpu"]
+        ]
+      },
+      "disk": {
+        "measurement": [
+          {
+            "name": "used_percent",
+            "rename": "DISK_USED",
+            "unit": "Percent"
+          },
+          {
+            "name": "free",
+            "rename": "DISK_FREE",
+            "unit": "Gigabytes"
+          }
+        ],
+        "metrics_collection_interval": 60,
+        "aggregation_dimensions": [
+          ["InstanceId", "path"],
+          ["InstanceId"]
+        ]
+      },
+      "mem": {
+        "measurement": [
+          {
+            "name": "mem_used_percent",
+            "rename": "MEM_USED",
+            "unit": "Percent"
+          },
+          {
+            "name": "mem_available",
+            "rename": "MEM_AVAILABLE",
+            "unit": "Megabytes"
+          }
+        ],
+        "metrics_collection_interval": 60,
+        "aggregation_dimensions": [
+          ["InstanceId"]
+        ]
+      },
+      "netstat": {
+        "measurement": [
+          {
+            "name": "tcp_established",
+            "rename": "TCP_ESTABLISHED",
+            "unit": "Count"
+          },
+          {
+            "name": "tcp_time_wait",
+            "rename": "TCP_TIME_WAIT",
+            "unit": "Count"
+          }
+        ],
+        "metrics_collection_interval": 60,
+        "aggregation_dimensions": [
+          ["InstanceId"]
+        ]
+      }
+    }
+  }
+}

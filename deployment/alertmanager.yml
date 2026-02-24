@@ -1,0 +1,107 @@
+global:
+  resolve_timeout: 5m
+  slack_api_url: '${SLACK_WEBHOOK_URL}'
+  pagerduty_url: 'https://events.pagerduty.com/v2/enqueue'
+  opsgenie_api_key: '${OPSGENIE_API_KEY}'
+  opsgenie_api_url: 'https://api.opsgenie.com/'
+
+templates:
+  - '/etc/alertmanager/templates/*.tmpl'
+
+route:
+  receiver: 'default'
+  group_by:
+    - 'alertname'
+    - 'cluster'
+    - 'service'
+  group_wait: 30s
+  group_interval: 5m
+  repeat_interval: 24h
+
+  routes:
+    # Critical alerts
+    - match:
+        severity: critical
+      receiver: 'critical-channel'
+      continue: true
+      group_wait: 0s
+      group_interval: 1m
+      repeat_interval: 1h
+
+    # Warnings
+    - match:
+        severity: warning
+      receiver: 'warning-channel'
+      group_wait: 1m
+      group_interval: 10m
+      repeat_interval: 6h
+
+    # Info
+    - match:
+        severity: info
+      receiver: 'info-channel'
+      repeat_interval: 24h
+
+receivers:
+  - name: 'default'
+    slack_configs:
+      - channel: '#alerts'
+        title: 'LLM Agent Alert'
+        text: '{{ range .Alerts }}{{ .Annotations.summary }}{{ end }}'
+        send_resolved: true
+
+  - name: 'critical-channel'
+    slack_configs:
+      - channel: '#critical-alerts'
+        title: '🚨 CRITICAL: {{ .GroupLabels.alertname }}'
+        text: |
+          Service: {{ .GroupLabels.service }}
+          Severity: {{ .GroupLabels.severity }}
+          {{ range .Alerts }}
+          Description: {{ .Annotations.description }}
+          {{ end }}
+        send_resolved: true
+        color: 'danger'
+    pagerduty_configs:
+      - service_key: '${PAGERDUTY_SERVICE_KEY}'
+        description: '{{ .GroupLabels.alertname }} - {{ .GroupLabels.service }}'
+        details:
+          firing: '{{ template "pagerduty.default.instances" .Alerts.Firing }}'
+
+  - name: 'warning-channel'
+    slack_configs:
+      - channel: '#warnings'
+        title: '⚠️  WARNING: {{ .GroupLabels.alertname }}'
+        text: |
+          Service: {{ .GroupLabels.service }}
+          {{ range .Alerts }}
+          {{ .Annotations.description }}
+          {{ end }}
+        send_resolved: true
+        color: 'warning'
+
+  - name: 'info-channel'
+    slack_configs:
+      - channel: '#info'
+        title: 'ℹ️  INFO: {{ .GroupLabels.alertname }}'
+        text: '{{ range .Alerts }}{{ .Annotations.description }}{{ end }}'
+        send_resolved: true
+
+inhibit_rules:
+  # Suppress warnings if critical alert is firing
+  - source_match:
+      severity: 'critical'
+    target_match:
+      severity: 'warning'
+    equal:
+      - 'alertname'
+      - 'service'
+
+  # Suppress info if warning is firing
+  - source_match:
+      severity: 'warning'
+    target_match:
+      severity: 'info'
+    equal:
+      - 'alertname'
+      - 'service'
