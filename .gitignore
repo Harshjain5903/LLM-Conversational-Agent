@@ -44,4 +44,10 @@ build/
 .DS_Store
 
 ### Scala ###
-.bsp/
+.bsp/target/
+.idea/
+.bloop/
+.metals/
+*.jar
+dist/
+build/
