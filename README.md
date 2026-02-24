@@ -1,6 +1,6 @@
 # LLM Conversational Agent
 
-**Production-ready enterprise AI conversational agent.** Download, run, and deploy immediately. No setup - just execute.
+Production-ready enterprise AI conversational agent. Download, run, and deploy immediately. No setup required.
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![Scala 3.5.0](https://img.shields.io/badge/Scala-3.5.0-red.svg)](https://www.scala-lang.org/)
@@ -8,7 +8,7 @@
 
 ---
 
-## 🚀 Get Started in 3 Steps
+## Get Started in 3 Steps
 
 ### 1. Clone & Enter Directory
 ```bash
@@ -28,33 +28,33 @@ curl -X POST http://localhost:8080/api/v1/chat \
   -d '{"message": "Hello, what is AI?", "conversationId": "user-1"}'
 ```
 
-**That's it!** Your agent is running at `http://localhost:8080`
+That's it! Your agent is running at `http://localhost:8080`
 
 ---
 
-## ✅ What's Included (COMPLETE)
+## What's Included (Complete)
 
-This is a **finished, production-ready project**. Everything is implemented and working:
+This is a finished, production-ready project. Everything is implemented and working:
 
-- ✅ **REST API Server** - Running Akka HTTP on port 8080
-- ✅ **LLM Support** - Works with Ollama locally, Bedrock on AWS
-- ✅ **Multi-turn Conversations** - Full context management
-- ✅ **Health Monitoring** - Endpoint checks and logging
-- ✅ **Docker Ready** - Run anywhere, no configuration needed
-- ✅ **Production Logging** - All activity tracked and monitored
-- ✅ **Error Handling** - Comprehensive recovery and fallbacks
-- ✅ **Tests** - All functionality tested
+- **REST API Server** - Running Akka HTTP on port 8080
+- **LLM Support** - Works with Ollama locally, Bedrock on AWS
+- **Multi-turn Conversations** - Full context management
+- **Health Monitoring** - Endpoint checks and logging
+- **Docker Ready** - Run anywhere, no configuration needed
+- **Production Logging** - All activity tracked and monitored
+- **Error Handling** - Comprehensive recovery and fallbacks
+- **Tests** - All functionality tested
 
 ---
 
-## 📋 System Requirements
+## System Requirements
 
 - **Docker** (Recommended - runs everything)
 - **OR** OpenJDK 11+, Scala 3.5.0, SBT 1.9.7+ (for local build)
 
 ---
 
-## 🎯 Live API Endpoints
+## Live API Endpoints
 
 All endpoints are **working now**:
 
@@ -107,7 +107,7 @@ DELETE /api/v1/conversation/{conversationId}
 
 ---
 
-## 🏗️ Architecture
+## Architecture
 
 ```
 Client (Curl, Browser, App)
@@ -125,7 +125,7 @@ LLM Provider (Ollama or Bedrock)
 
 ---
 
-## 🐳 Running with Docker (Recommended)
+## Running with Docker (Recommended)
 
 ### Start Everything
 ```bash
@@ -148,7 +148,7 @@ docker-compose down
 
 ---
 
-## 💻 Running Locally (Without Docker)
+## Running Locally (Without Docker)
 
 ### Prerequisites
 ```bash
@@ -174,7 +174,7 @@ sbt run
 
 ---
 
-## ⚙️ Configuration
+## Configuration
 
 All configuration is in `src/main/resources/application.conf`:
 
@@ -213,22 +213,22 @@ docker run -p 8080:8080 \
 
 ---
 
-## 📊 What's Working RIGHT NOW
+## What's Working Now
 
 | Feature | Status | How to Test |
 |---------|--------|------------|
-| Chat API | ✅ Running | `curl http://localhost:8080/api/v1/chat` |
-| Health Check | ✅ Running | `curl http://localhost:8080/health` |
-| Conversation History | ✅ Running | `curl http://localhost:8080/api/v1/conversation/user-1` |
-| Statistics | ✅ Running | `curl http://localhost:8080/api/v1/stats` |
-| Multi-turn Chats | ✅ Running | Send multiple messages to same ID |
-| Error Handling | ✅ Running | Send invalid requests, it recovers |
-| Logging | ✅ Running | View `docker-compose logs llm-agent` |
-| Docker Deployment | ✅ Running | `docker-compose up` |
+| Chat API | Working | `curl http://localhost:8080/api/v1/chat` |
+| Health Check | Working | `curl http://localhost:8080/health` |
+| Conversation History | Working | `curl http://localhost:8080/api/v1/conversation/user-1` |
+| Statistics | Working | `curl http://localhost:8080/api/v1/stats` |
+| Multi-turn Chats | Working | Send multiple messages to same ID |
+| Error Handling | Working | Send invalid requests, it recovers |
+| Logging | Working | View `docker-compose logs llm-agent` |
+| Docker Deployment | Working | `docker-compose up` |
 
 ---
 
-## 📁 Project Structure
+## Project Structure
 
 ```
 ├── src/main/scala/
@@ -252,7 +252,7 @@ docker run -p 8080:8080 \
 
 ---
 
-## 🧪 Testing
+## Testing
 
 ```bash
 # Run all tests
@@ -264,7 +264,7 @@ sbt testOnly com.hardas.agent.ConversationAgentTest
 
 ---
 
-## 📈 Performance
+## Performance
 
 - **Concurrent Users**: 10,000+
 - **Response Time**: 50-200ms per request
@@ -273,7 +273,7 @@ sbt testOnly com.hardas.agent.ConversationAgentTest
 
 ---
 
-## 🔒 Security
+## Security
 
 - No credentials in code
 - Type-safe Scala (no null pointer exceptions)
@@ -283,7 +283,7 @@ sbt testOnly com.hardas.agent.ConversationAgentTest
 
 ---
 
-## 📞 Support
+## Support
 
 ### Common Issues
 
@@ -305,7 +305,7 @@ sbt testOnly com.hardas.agent.ConversationAgentTest
 
 ---
 
-## 🚀 Deployment
+## Deployment
 
 ### AWS EC2
 ```bash
@@ -330,7 +330,7 @@ docker build -t llm-agent:1.0.0 .
 
 ---
 
-## 📚 Technology Stack
+## Technology Stack
 
 | Component | Technology | Version |
 |-----------|-----------|---------|
@@ -345,7 +345,7 @@ docker build -t llm-agent:1.0.0 .
 
 ---
 
-## 📝 License
+## License
 
 MIT License © 2025 Harsh Jain
 
@@ -353,9 +353,9 @@ See [LICENSE](LICENSE) file for details.
 
 ---
 
-## 👤 Author
+## Author
 
-**Harsh Jain**  
+Harsh Jain  
 Full Stack Engineer | Cloud & AI Systems
 
 - GitHub: [@Harshjain5903](https://github.com/Harshjain5903)
@@ -363,31 +363,31 @@ Full Stack Engineer | Cloud & AI Systems
 
 ---
 
-## ✨ Features Overview
+## Features
 
 ### Implemented & Working
-- ✅ RESTful API with JSON
-- ✅ Multi-turn conversations
-- ✅ Context tracking
-- ✅ Health monitoring
-- ✅ Error recovery
-- ✅ Production logging
-- ✅ Docker support
-- ✅ Test suite
-- ✅ AWS integration ready
-- ✅ Scalable architecture
+- RESTful API with JSON
+- Multi-turn conversations
+- Context tracking
+- Health monitoring
+- Error recovery
+- Production logging
+- Docker support
+- Test suite
+- AWS integration ready
+- Scalable architecture
 
 ### What You Get
-- 🎁 Complete source code
-- 🎁 Production-ready deployment
-- 🎁 Comprehensive tests
-- 🎁 Docker configuration
-- 🎁 Full documentation
-- 🎁 AWS deployment guide
+- Complete source code
+- Production-ready deployment
+- Comprehensive tests
+- Docker configuration
+- Full documentation
+- AWS deployment guide
 
 ---
 
-## ⚡ Quick Commands
+## Quick Commands
 
 ```bash
 # Clone
@@ -410,6 +410,6 @@ docker-compose down
 
 ---
 
-**Status**: ✅ COMPLETE & RUNNING | **Ready**: ✅ IMMEDIATELY | **Setup Time**: ⏱️ 2 MINUTES
+**Status**: Complete & Running | **Ready**: Immediately | **Setup Time**: 2 Minutes
 
 Last Updated: February 24, 2025
