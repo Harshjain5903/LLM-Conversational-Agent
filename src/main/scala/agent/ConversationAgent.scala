@@ -1,3 +1,12 @@
+/**
+ * Conversation Agent
+ * ==================
+ * Orchestrates multi-turn conversations with context management.
+ * Handles message processing, history tracking, and conversation lifecycle.
+ *
+ * Author: Harsh Jain
+ */
+
 package agent
 
 import llm.{LLMProvider, ConversationContext, ConversationMessage}

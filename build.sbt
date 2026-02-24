@@ -6,6 +6,7 @@ lazy val root = (project in file("."))
   .settings(
     name := "LLMConversationalAgent",
     organization := "com.hardas",
+    description := "Enterprise-grade LLM conversational agent with Akka HTTP, gRPC, and AWS integration",
     
     // JVM Settings
     javacOptions ++= Seq(
@@ -18,7 +19,8 @@ lazy val root = (project in file("."))
       "-deprecation",
       "-feature",
       "-unchecked",
-      "-encoding", "UTF-8"
+      "-encoding", "UTF-8",
+      "-Wunused:all"
     )
   )
 
@@ -27,6 +29,7 @@ val akkaVersion = "2.9.3"
 val akkaHttpVersion = "10.6.3"
 val grpcVersion = "1.63.0"
 val scalapbVersion = "0.11.15"
+val sprayVersion = "1.3.6"
 
 // Core Dependencies
 libraryDependencies ++= Seq(
@@ -35,6 +38,9 @@ libraryDependencies ++= Seq(
   "com.typesafe.akka" %% "akka-stream" % akkaVersion,
   "com.typesafe.akka" %% "akka-http" % akkaHttpVersion,
   "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
+  
+  // Spray JSON
+  "io.spray" %% "spray-json" % sprayVersion,
   
   // gRPC
   "io.grpc" % "grpc-netty-shaded" % grpcVersion,
@@ -56,14 +62,16 @@ libraryDependencies ++= Seq(
   "software.amazon.awssdk" % "bedrock-runtime" % "2.26.1",
   "software.amazon.awssdk" % "lambda" % "2.26.1",
   "software.amazon.awssdk" % "apigateway" % "2.26.1",
+  "software.amazon.awssdk" % "cloudwatch" % "2.26.1",
   
   // JSON Processing
   "com.google.code.gson" % "gson" % "2.11.0",
   "com.fasterxml.jackson.core" % "jackson-databind" % "2.17.0",
+  "com.fasterxml.jackson.module" %% "jackson-module-scala" % "2.17.0",
   
   // HTTP Client
   "com.softwaremill.sttp.client3" %% "core" % "3.9.1",
-  "com.softwaremill.sttp.client3" %% "akka-http-backend" % "3.9.1",
+  "com.softwaremill.sttp.client3" %% "httpuclient-backend" % "3.9.1",
   
   // Utilities
   "org.scala-lang.modules" %% "scala-java8-compat" % "1.0.2",

@@ -44,10 +44,60 @@ build/
 .DS_Store
 
 ### Scala ###
-.bsp/target/
-.idea/
+.bsp/# SBT
+target/
+project/target/
+dist/
 .bloop/
 .metals/
-*.jar
-dist/
+.vscode/
+*.bsp
+
+# IDE
+.idea/
+.idea_modules/
+*.iml
+*.iws
+*.ipr
+.vscode/
+.DS_Store
+
+# Build
 build/
+*.jar
+*.war
+*.zip
+*.tar.gz
+
+# Logs
+logs/
+*.log
+/.log
+
+# Runtime
+run/
+.cache
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# OS
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Testing
+.coverage
+coverage/
+target/scala-*/scoverage-report/
+
+# Misc
+*.tmp
+.classpath
+.project
+.settings/
+

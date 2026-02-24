@@ -1,3 +1,12 @@
+/**
+ * Amazon Bedrock LLM Provider
+ * ===========================
+ * Integrates with AWS Bedrock for enterprise-grade LLM capabilities.
+ * Handles invocation and response management for Claude and other Bedrock models.
+ *
+ * Author: Harsh Jain
+ */
+
 package llm
 
 import com.typesafe.scalalogging.Logger

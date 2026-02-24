@@ -19,18 +19,33 @@ services:
       start_period: 40s
     networks:
       - llm-network
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
 
   # LLM Conversational Agent service
   llm-agent:
     build:
       context: .
       dockerfile: Dockerfile
+      args:
+        - SCALA_VERSION=3.5.0
     container_name: llm-agent
     ports:
       - "8080:8080"
     environment:
-      # Use Ollama as the LLM backend
-      - JAVA_OPTS=-Dapp.llm.backend=ollama -Dapp.llm.ollama.endpoint=http://ollama:11434
+      # Configuration
+      - app_server_host=0.0.0.0
+      - app_server_port=8080
+      - app_llm_backend=ollama
+      - app_llm_ollama_endpoint=http://ollama:11434
+      - app_llm_ollama_model=llama2
+      
+      # JVM Options
+      - JAVA_OPTS=-Xmx1g -Xms512m -XX:+UseG1GC -XX:MaxGCPauseMillis=200
     depends_on:
       ollama:
         condition: service_healthy
@@ -42,11 +57,20 @@ services:
       timeout: 10s
       retries: 3
       start_period: 40s
+    restart: unless-stopped
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "10"
 
 networks:
   llm-network:
     driver: bridge
+    name: llm-network
 
 volumes:
   ollama_data:
     driver: local
+    name: ollama_data
+

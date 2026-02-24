@@ -1,3 +1,12 @@
+/**
+ * Application Configuration Management
+ * ====================================
+ * Manages externalized configuration for the LLM Conversational Agent.
+ * Configuration is loaded from application.conf with environment variable overrides.
+ *
+ * Author: Harsh Jain
+ */
+
 package config
 
 import com.typesafe.config.ConfigFactory

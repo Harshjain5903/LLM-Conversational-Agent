@@ -1,36 +1,44 @@
+/**
+ * Ollama LLM Provider
+ * ==================
+ * Integrates with Ollama for local/on-premise LLM inference.
+ * Provides HTTP-based communication with Ollama endpoints.
+ *
+ * Author: Harsh Jain
+ */
+
 package llm
 
 import com.typesafe.scalalogging.Logger
 import sttp.client3.*
-import sttp.client3.akkahttp.AkkaHttpBackend
-import akka.actor.ActorSystem
 
 import scala.concurrent.{ExecutionContext, Future}
-import scala.util.{Failure, Success}
 
 class OllamaLLMProvider(config: config.OllamaConfig)(implicit ec: ExecutionContext) extends LLMProvider {
   private val logger = Logger("OllamaLLMProvider")
   
-  implicit val backend: SttpBackend[Future, _] = AkkaHttpBackend()
+  private implicit val backend: SttpBackend[Future, _] = HttpClientFutureBackend()
 
   logger.info(s"Ollama LLM Provider initialized with endpoint: ${config.endpoint}, model: ${config.model}")
 
   override def generateResponse(prompt: String): Future[String] = {
     try {
-      val requestBody = s"""{"model":"${config.model}","prompt":"$prompt","stream":false}"""
+      val escapedPrompt = prompt.replace("\"", "\\\"").replace("\n", "\\n")
+      val requestBody = s"""{"model":"${config.model}","prompt":"$escapedPrompt","stream":false}"""
       
       val request = basicRequest
         .post(uri"${config.endpoint}/api/generate")
         .body(requestBody)
         .header("Content-Type", "application/json")
+        .readTimeout(java.time.Duration.ofSeconds(60))
 
-      val response = request.send(backend).flatMap { resp =>
+      request.send(backend).flatMap { resp =>
         if (resp.code.isSuccess) {
           logger.debug(s"Ollama response received for prompt: '${prompt.take(50)}...'")
           Future.successful(resp.body.fold(
             err => {
               logger.error(s"Ollama response parsing error: $err")
-              "Error processing response"
+              "Error: Unable to parse response"
             },
             success => success
           ))
@@ -38,9 +46,7 @@ class OllamaLLMProvider(config: config.OllamaConfig)(implicit ec: ExecutionConte
           logger.error(s"Ollama API error: ${resp.code}")
           Future.failed(new RuntimeException(s"Ollama API returned ${resp.code}"))
         }
-      }
-
-      response.recoverWith {
+      }.recoverWith {
         case ex =>
           logger.error(s"Error invoking Ollama: ${ex.getMessage}", ex)
           Future.failed(ex)
@@ -56,6 +62,7 @@ class OllamaLLMProvider(config: config.OllamaConfig)(implicit ec: ExecutionConte
     try {
       val request = basicRequest
         .get(uri"${config.endpoint}/api/tags")
+        .readTimeout(java.time.Duration.ofSeconds(10))
 
       request.send(backend).map { resp =>
         val isHealthy = resp.code.isSuccess
@@ -82,3 +89,4 @@ class OllamaLLMProvider(config: config.OllamaConfig)(implicit ec: ExecutionConte
     logger.info("Ollama LLM Provider shut down")
   }
 }
+

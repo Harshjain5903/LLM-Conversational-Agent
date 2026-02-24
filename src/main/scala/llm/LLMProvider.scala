@@ -1,3 +1,12 @@
+/**
+ * LLM Provider Interface and Abstractions
+ * ======================================
+ * Defines the interface and data models for LLM providers.
+ * Supports both Amazon Bedrock and Ollama backends.
+ *
+ * Author: Harsh Jain
+ */
+
 package llm
 
 import com.typesafe.scalalogging.Logger
