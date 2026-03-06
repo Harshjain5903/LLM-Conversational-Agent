@@ -35,6 +35,8 @@ object JsonProtocols extends DefaultJsonProtocol {
   implicit val chatRequestFormat: RootJsonFormat[ChatRequest] = jsonFormat2(ChatRequest)
   implicit val chatResponseFormat: RootJsonFormat[ChatResponse] = jsonFormat3(ChatResponse)
   implicit val healthCheckResponseFormat: RootJsonFormat[HealthCheckResponse] = jsonFormat2(HealthCheckResponse)
+  implicit val componentHealthFormat: RootJsonFormat[ComponentHealth] = jsonFormat5(ComponentHealth)
+  implicit val systemHealthFormat: RootJsonFormat[SystemHealth] = jsonFormat5(SystemHealth)
   implicit val errorResponseFormat: RootJsonFormat[ErrorResponse] = jsonFormat1(ErrorResponse)
   implicit val anyFormat: RootJsonFormat[Any] = new RootJsonFormat[Any] {
     override def write(value: Any): JsValue = value match {
@@ -66,6 +68,9 @@ class RestServer(config: AppConfig)(implicit system: ActorSystem[Nothing]) {
   
   // Initialize Rate Limiter (60 requests per minute per conversation)
   private val rateLimiter = RateLimiter(60, 60)
+  
+  // Initialize Health Check Service
+  private val healthCheckService = new HealthCheckService(llmProvider, agent)
 
   def start(): Future[Http.ServerBinding] = {
     logger.info(s"Starting REST API Server on ${config.server.host}:${config.server.port}")
@@ -86,17 +91,38 @@ class RestServer(config: AppConfig)(implicit system: ActorSystem[Nothing]) {
         }
       },
 
-      // Health check endpoint
+      // Health check endpoint (simple)
       get {
         path("health") {
           logger.debug("Health check request received")
-          onComplete(llmProvider.healthCheck()) {
+          onComplete(healthCheckService.simpleHealthCheck()) {
             case Success(isHealthy) =>
               val status = if (isHealthy) "healthy" else "unhealthy"
-              complete(StatusCodes.OK -> HealthCheckResponse(status, "LLM Conversational Agent is running"))
+              val statusCode = if (isHealthy) StatusCodes.OK else StatusCodes.ServiceUnavailable
+              complete(statusCode -> HealthCheckResponse(status, "LLM Conversational Agent is running"))
             case Failure(ex) =>
               logger.error(s"Health check failed: ${ex.getMessage}", ex)
               complete(StatusCodes.ServiceUnavailable -> HealthCheckResponse("unhealthy", s"Health check failed: ${ex.getMessage}"))
+          }
+        }
+      },
+      
+      // Detailed health check endpoint
+      get {
+        path("api" / "v1" / "health") {
+          logger.debug("Detailed health check request received")
+          onComplete(healthCheckService.checkHealth()) {
+            case Success(health) =>
+              val statusCode = health.status match {
+                case "healthy" => StatusCodes.OK
+                case "degraded" => StatusCodes.OK
+                case "unhealthy" => StatusCodes.ServiceUnavailable
+                case _ => StatusCodes.InternalServerError
+              }
+              complete(statusCode -> health)
+            case Failure(ex) =>
+              logger.error(s"Detailed health check failed: ${ex.getMessage}", ex)
+              complete(StatusCodes.ServiceUnavailable -> ErrorResponse(s"Health check failed: ${ex.getMessage}"))
           }
         }
       },
