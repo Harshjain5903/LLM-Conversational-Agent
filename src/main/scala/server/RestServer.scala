@@ -53,6 +53,7 @@ object JsonProtocols extends DefaultJsonProtocol {
 
 class RestServer(config: AppConfig)(implicit system: ActorSystem[Nothing]) {
   import JsonProtocols.*
+  import RequestValidator.*
 
   private val logger = Logger("RestServer")
   private implicit val ec: ExecutionContext = system.executionContext
@@ -62,6 +63,9 @@ class RestServer(config: AppConfig)(implicit system: ActorSystem[Nothing]) {
   
   // Initialize Conversation Agent
   private val agent = new ConversationAgent(llmProvider)
+  
+  // Initialize Rate Limiter (60 requests per minute per conversation)
+  private val rateLimiter = RateLimiter(60, 60)
 
   def start(): Future[Http.ServerBinding] = {
     logger.info(s"Starting REST API Server on ${config.server.host}:${config.server.port}")
@@ -103,18 +107,31 @@ class RestServer(config: AppConfig)(implicit system: ActorSystem[Nothing]) {
           entity(as[ChatRequest]) { chatRequest =>
             logger.info(s"Chat request received for conversation: ${chatRequest.conversationId}")
             
-            if (chatRequest.message.isBlank) {
-              complete(StatusCodes.BadRequest -> ErrorResponse("Message cannot be empty"))
-            } else {
-              onComplete(agent.processMessage(chatRequest.conversationId, chatRequest.message)) {
-                case Success(response) =>
-                  val timestamp = java.time.Instant.now().toString
-                  complete(StatusCodes.OK -> ChatResponse(response, chatRequest.conversationId, timestamp))
-                
-                case Failure(ex) =>
-                  logger.error(s"Error processing chat request: ${ex.getMessage}", ex)
-                  complete(StatusCodes.InternalServerError -> ErrorResponse(s"Error processing request: ${ex.getMessage}"))
-              }
+            // Validate request
+            validateChatRequest(chatRequest.message, chatRequest.conversationId) match {
+              case Invalid(reason) =>
+                logger.warn(s"Invalid request: $reason")
+                complete(StatusCodes.BadRequest -> ErrorResponse(reason))
+              
+              case Valid =>
+                // Check rate limit
+                if (!rateLimiter.isAllowed(chatRequest.conversationId)) {
+                  logger.warn(s"Rate limit exceeded for conversation: ${chatRequest.conversationId}")
+                  complete(StatusCodes.TooManyRequests -> ErrorResponse("Rate limit exceeded. Please try again later."))
+                } else {
+                  // Sanitize input
+                  val sanitizedMessage = sanitizeInput(chatRequest.message)
+                  
+                  onComplete(agent.processMessage(chatRequest.conversationId, sanitizedMessage)) {
+                    case Success(response) =>
+                      val timestamp = java.time.Instant.now().toString
+                      complete(StatusCodes.OK -> ChatResponse(response, chatRequest.conversationId, timestamp))
+                    
+                    case Failure(ex) =>
+                      logger.error(s"Error processing chat request: ${ex.getMessage}", ex)
+                      complete(StatusCodes.InternalServerError -> ErrorResponse(s"Error processing request: ${ex.getMessage}"))
+                  }
+                }
             }
           }
         }
